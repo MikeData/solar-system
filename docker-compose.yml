@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+
+  d2r:
+    build:
+      context: d2rq
+    ports:
+      - 2020:2020
+    volumes:
+      - ./data:/var/lib/d2rq:z
+
+  loadsheets:
+    build:
+      context: sheets
+    volumes:
+      - ./data:/data:z
+      - ./sheets:/usr/local/sheets:z
