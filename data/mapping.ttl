@@ -130,12 +130,6 @@ map:stats_unit a d2rq:PropertyBridge;
 	d2rq:propertyDefinitionLabel "stats unit";
 	d2rq:column "stats.unit";
 	.
-map:stats_topic a d2rq:PropertyBridge;
-	d2rq:belongsToClassMap map:stats;
-	d2rq:property ss:stats_topic;
-	d2rq:propertyDefinitionLabel "stats topic";
-	d2rq:column "stats.topic";
-	.
 map:stats_metadata a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:stats;
 	d2rq:property ss:stats_metadata;
@@ -154,4 +148,23 @@ map:stats_dataset_id__ref a d2rq:PropertyBridge;
 	d2rq:refersToClassMap map:dataset;
 	d2rq:join "stats.dataset_id => dataset.id";
 	.
+map:stats_topic a d2rq:PropertyBridge;
+  d2rq:belongsToClassMap map:stats;
+  d2rq:property ss:hasTopic;
+  d2rq:refersToClassMap map:topic;
+  d2rq:join "stats.id <= stats_topic.stats_id";
+  d2rq:join "stats_topic.topic_id => topic.id";
+  .
 
+# Table topic
+map:topic a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "topic/@@topic.id@@";
+	d2rq:class ss:Topic;
+	d2rq:classDefinitionLabel "Topic";
+	.
+map:topic__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:topic;
+	d2rq:property rdfs:label;
+	d2rq:column "topic.label";
+	.

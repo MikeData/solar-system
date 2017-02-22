@@ -36,6 +36,7 @@ class Dataset(SQLObject):
     frequencyNotes = UnicodeCol()
     link = UnicodeCol()
     status = EnumCol(enumValues=['Official Statistics', 'National Statistics', 'Experimental Statistics'])
+
 Dataset.createTable()
 
 Organisation.sqlmeta.addJoin(MultipleJoin('Dataset', joinMethodName='datasets'))
@@ -45,11 +46,16 @@ class Stats(SQLObject):
     geography = UnicodeCol()
     time = UnicodeCol()
     unit = UnicodeCol()
-    topic = UnicodeCol()
+    topics = RelatedJoin('Topic')
     metadata = UnicodeCol()
     form = UnicodeCol()
     dataset = ForeignKey('Dataset')
+
+class Topic(SQLObject):
+    label = UnicodeCol()
+
 Stats.createTable()
+Topic.createTable()
 
 Dataset.sqlmeta.addJoin(MultipleJoin('Stats', joinMethodName='stats'))
 
@@ -62,6 +68,8 @@ for org, url in index_data[1:]:
     persistedOrg = Organisation(sheetName=org, link=url)
     orgId[org] = persistedOrg.id
 
+
+topicIds = {}
 for sheet in sh.worksheets()[2:]:
     print "Sheet: %s" % sheet.title
     data = sheet.get_all_values()
@@ -75,11 +83,6 @@ for sheet in sh.worksheets()[2:]:
     for row in data[1:]:
         producer = row[headerCol['producer']]
         if producer != '':
-            # finished previous dataset if any
-#            if dataset != None:
-#                # dump it to db
-#                print dataset
-
             if producer != sheet.title:
                     if sheet.title not in orgLongName:
                         orgLongName[sheet.title] = producer
@@ -109,9 +112,18 @@ for sheet in sh.worksheets()[2:]:
                               geography=row[headerCol['geography']] if 'geography' in headerCol else None,
                               time=row[headerCol['time period']] if 'time period' in headerCol else None,
                               unit=row[headerCol['unit of measure']] if 'unit of measure' in headerCol else None,
-                              topic=row[headerCol['topic dimensions']] if 'topic dimensions' in headerCol else None,
                               metadata=row[headerCol['metadata']] if 'metadata' in headerCol else None,
                               form=row[headerCol['format']] if 'format' in headerCol else None,
                               dataset=dataset)
+                if 'topic dimensions' in headerCol:
+                    for topic in row[headerCol['topic dimensions']].split(','):
+                        topicLabel = topic.strip().lower()
+                        if topicLabel not in topicIds:
+                            dbTopic = Topic(label=topicLabel)
+                            topicIds[topicLabel] = dbTopic.id
+                        else:
+                            dbTopic = Topic.get(topicIds[topicLabel])
+                        table.addTopic(dbTopic)
+
             except:
                 traceback.print_exc()
