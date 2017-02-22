@@ -1,0 +1,157 @@
+@prefix map: <#> .
+@prefix db: <> .
+@prefix ss: <https://ons.gov.uk/ns/solarsystem#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix d2rq: <http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1#> .
+@prefix jdbc: <http://d2rq.org/terms/jdbc/> .
+
+map:database a d2rq:Database;
+	d2rq:jdbcDriver "org.sqlite.JDBC";
+	d2rq:jdbcDSN "jdbc:sqlite:/var/lib/d2rq/solar-system.db";
+	.
+
+# Table dataset
+map:dataset a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "dataset/@@dataset.id@@";
+	d2rq:class ss:Dataset;
+	d2rq:classDefinitionLabel "Dataset";
+	.
+map:dataset__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:dataset;
+	d2rq:property rdfs:label;
+	d2rq:column "dataset.title";
+	.
+map:dataset_frequency a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:dataset;
+	d2rq:property ss:dataset_frequency;
+	d2rq:propertyDefinitionLabel "dataset frequency";
+	d2rq:column "dataset.frequency";
+  d2rq:translateWith map:FrequencyTable;
+	.
+map:FrequencyTable a d2rq:TranslationTable;
+  d2rq:translation [ d2rq:databaseValue "5Y"; d2rq:rdfValue "P5Y"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "4Y"; d2rq:rdfValue "P4Y"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "3Y"; d2rq:rdfValue "P3Y"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "2Y"; d2rq:rdfValue "P2Y"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "Y"; d2rq:rdfValue "P1Y"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "Q"; d2rq:rdfValue "P3M"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "M"; d2rq:rdfValue "P1M"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "W"; d2rq:rdfValue "P7D"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "2W"; d2rq:rdfValue "P14D"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "2"; d2rq:rdfValue "P2M"^^xsd:duration];
+  d2rq:translation [ d2rq:databaseValue "6"; d2rq:rdfValue "P6M"^^xsd:duration];
+  .
+map:dataset_frequency_notes a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:dataset;
+	d2rq:property ss:dataset_frequency_notes;
+	d2rq:propertyDefinitionLabel "dataset frequency_notes";
+	d2rq:column "dataset.frequency_notes";
+	.
+map:dataset_link a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:dataset;
+	d2rq:property ss:dataset_link;
+	d2rq:propertyDefinitionLabel "dataset link";
+	d2rq:uriColumn "dataset.link";
+	.
+map:dataset_status a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:dataset;
+	d2rq:property ss:dataset_status;
+	d2rq:propertyDefinitionLabel "dataset status";
+	d2rq:uriColumn "dataset.status";
+  d2rq:translateWith map:StatusTable;
+	.
+map:StatusTable a d2rq:TranslationTable;
+  d2rq:translation [ d2rq:databaseValue "Official Statistics"; d2rq:rdfValue ss:OfficialStatistics];
+  d2rq:translation [ d2rq:databaseValue "National Statistics"; d2rq:rdfValue ss:NationalStatistics];
+  d2rq:translation [ d2rq:databaseValue "Experimental Statistics"; d2rq:rdfValue ss:ExperimentalStatistics];
+  .
+map:dataset_organisation_id__ref a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:dataset;
+	d2rq:property ss:belongsToOrganisation;
+	d2rq:refersToClassMap map:organisation;
+	d2rq:join "dataset.organisation_id => organisation.id";
+	.
+
+# Table organisation
+map:organisation a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "organisation/@@organisation.id@@";
+	d2rq:class ss:Organisation;
+	d2rq:classDefinitionLabel "organisation";
+	.
+map:organisation__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:organisation;
+	d2rq:property rdfs:label;
+	d2rq:column "organisation.sheet_name";
+	.
+map:organisation_long_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:organisation;
+	d2rq:property rdfs:comment;
+	d2rq:column "organisation.long_name";
+	.
+map:organisation_link a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:organisation;
+	d2rq:property ss:organisation_link;
+	d2rq:propertyDefinitionLabel "organisation link";
+	d2rq:uriColumn "organisation.link";
+  d2rq:condition "organisation.link != ''";
+	.
+
+# Table stats
+map:stats a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "stats/@@stats.id@@";
+	d2rq:class ss:Stats;
+	d2rq:classDefinitionLabel "Stats";
+	.
+map:stats__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property rdfs:label;
+	d2rq:column "stats.name";
+	.
+map:stats_geography a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_geography;
+	d2rq:propertyDefinitionLabel "stats geography";
+	d2rq:column "stats.geography";
+	.
+map:stats_time a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_time;
+	d2rq:propertyDefinitionLabel "stats time";
+	d2rq:column "stats.time";
+	.
+map:stats_unit a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_unit;
+	d2rq:propertyDefinitionLabel "stats unit";
+	d2rq:column "stats.unit";
+	.
+map:stats_topic a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_topic;
+	d2rq:propertyDefinitionLabel "stats topic";
+	d2rq:column "stats.topic";
+	.
+map:stats_metadata a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_metadata;
+	d2rq:propertyDefinitionLabel "stats metadata";
+	d2rq:column "stats.metadata";
+	.
+map:stats_form a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_form;
+	d2rq:propertyDefinitionLabel "stats form";
+	d2rq:column "stats.form";
+	.
+map:stats_dataset_id__ref a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_dataset_id;
+	d2rq:refersToClassMap map:dataset;
+	d2rq:join "stats.dataset_id => dataset.id";
+	.
+
