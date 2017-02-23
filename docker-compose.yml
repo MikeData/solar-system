@@ -2,6 +2,16 @@ version: '2'
 
 services:
 
+  vis:
+    build:
+      context: vis
+    ports:
+      - 3000:3000
+    volumes:
+      - ./vis:/app:z
+    links:
+      - d2r
+
   d2r:
     build:
       context: d2rq
