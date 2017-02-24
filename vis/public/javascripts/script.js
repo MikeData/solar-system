@@ -571,7 +571,17 @@ function selectObject(obj, el) {
     highlightObject(obj);
 
     node.classed('selected', true);
-    $('#docs').html(obj.docs);
+    if (obj.docs) {
+      $('#docs').html(obj.docs);
+    } else if (obj.docsLink) {
+      $.get(obj.docsLink, function(htmlDoc) {
+        $('#docs').html(htmlDoc);
+      }).fail(function() {
+        $('#docs').html('');
+      });
+    } else {
+      $('#docs').html('');
+    }
     $('#docs-container').scrollTop(0);
     resize(true);
 

@@ -3,6 +3,7 @@ var router = express.Router();
 var fs = require('fs');
 var async = require('async');
 var sparql = require('sparql');
+var moment = require('moment');
 
 router.get('/', function(req, res, next) {
   var client = new sparql.Client('http://d2r:2020/sparql');
@@ -73,6 +74,7 @@ SELECT DISTINCT * WHERE {
             type: row.org.value,
             name: row.datasetLabel.value,
             id: row.dataset.value,
+            docsLink: 'dataset?name=' + encodeURIComponent(row.datasetLabel.value),
             depends: [],
             dependedOnBy: []
           };
@@ -97,65 +99,87 @@ SELECT DISTINCT * WHERE {
     }
   });
 });
-/*      
-  var conn = new stardog.Connection();
-  conn.setEndpoint('http://stardog:5820/');
-  conn.setCredentials('admin', 'admin');
-  conn.query({database: 'EM', query: `PREFIX em: <http://tide.act.nato.int/em/index.php/Special:URIResolver/>
-SELECT DISTINCT * WHERE {
-  ?elem em:Property-3AIs_requiring_service ?serv .
-  ?serv em:Property-3AIs_child_of+ em:COI-2DEnabling_Services .
-  ?elem a ?elemType; rdfs:label ?elemLabel ; em:Property-3ADescription ?elemDesc .
-  ?serv a ?servType; rdfs:label ?servLabel ; em:Property-3ADescription ?servDesc .
-  FILTER (?servType != <http://semantic-mediawiki.org/swivt/1.0#Subject>) .
-  FILTER (?elemType != <http://semantic-mediawiki.org/swivt/1.0#Subject>) .
-  FILTER (?elemType != em:Category-3AServices) .
-}`},
-             function(qr) {
-               var data = {};
-               qr.results.bindings.forEach(function(binding) {
-                 var elemUri = binding.elem.value;
-                 var servUri = binding.serv.value;
-                 if (!data.hasOwnProperty(elemUri)) {
-                   data[elemUri] = {
-                     name: binding.elemLabel.value,
-                     docs: binding.elemDesc.value,
-                     id: elemUri,
-                     depends: [],
-                     dependedOnBy: []
-                   };
-                 }
-                 if (!data.hasOwnProperty(servUri)) {
-                   data[servUri] = {
-                     name: binding.servLabel.value,
-                     docs: binding.servDesc.value,
-                     id: servUri,
-                     depends: [],
-                     dependedOnBy: []
-                   };
-                 }
-                 if (servUri !== elemUri) {
-                   if (data[elemUri].depends.indexOf(servUri) ==-1) {
-                     data[elemUri].depends.push(servUri);
-                   }
-                   if (data[servUri].dependedOnBy.indexOf(elemUri) ==-1) {
-                     data[servUri].dependedOnBy.push(elemUri);
-                   }
-                 }
-                 var uselessClasses = ['http://semantic-mediawiki.org/swivt/1.0#Subject',
-                                       'http://tide.act.nato.int/em/index.php/Special:URIResolver/Category-3APages_with_broken_file_links'];
-                 if (uselessClasses.indexOf(binding.elemType.value) === -1) {
-                   data[elemUri].type = binding.elemType.value;
-                 }
-                 if (uselessClasses.indexOf(binding.servType.value) === -1) {
-                   data[servUri].type = binding.servType.value;
-                 }
-               });
-               res.json({
-                 data: data,
-                 errors: []
-               });
-             });
-}); */
+
+router.get('/dataset', function(req, res, next) {
+  var client = new sparql.Client('http://d2r:2020/sparql');
+  var escapeName = req.query.name.replace(/["]/g, '\\$&');
+  client.rows(`PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ss: <https://ons.gov.uk/ns/solarsystem#>
+SELECT ?dataset ?freq ?link ?status ?orgLabel WHERE {
+  ?dataset rdfs:label "` + escapeName + `" ;
+    ss:belongsToOrganisation ?org .
+  OPTIONAL { ?dataset ss:dataset_frequency ?freq } .
+  OPTIONAL { ?dataset ss:dataset_link ?link } .
+  OPTIONAL { ?dataset ss:dataset_status ?status } .
+  ?org rdfs:label ?shortLabel .
+  OPTIONAL { ?org rdfs:comment ?longLabel } .
+  BIND(IF(BOUND(?longLabel), ?longLabel, ?shortLabel) AS ?orgLabel) .
+}`, function(error, datasetRows) {
+    if (error) {
+      res.render('error', {message: 'Error running SPARQL', error: error[1]});
+    } else if (datasetRows.length !== 1) {
+      res.render('error', {message: 'Problem looking up dataset'});
+    } else {
+      var details = {
+        'dataset': datasetRows[0].dataset.value,
+        'label': req.query.name,
+        'orgLabel': datasetRows[0].orgLabel.value
+      };
+      if (datasetRows[0].hasOwnProperty('freq')) {
+        var duration = moment.duration(datasetRows[0].freq.value);
+        var durations = [];
+        ['years', 'months', 'days'].forEach(function(period) {
+          if (duration[period]() > 0) {
+            if (duration[period]() > 1) {
+              durations.push(duration[period]().toString() + ' ' + period);
+            } else {
+              durations.push(duration[period]().toString() + ' ' + period.substring(0, period.length - 1));
+            }
+          }
+        });
+        details['freq'] = 'Every ' + durations.join(' ');
+      }
+      if (datasetRows[0].hasOwnProperty('link')) {
+        details['link'] = datasetRows[0].link.value;
+      }
+      if (datasetRows[0].hasOwnProperty('status')) {
+        if (datasetRows[0].status.value.endsWith('NationalStatistics')) {
+          details['status'] = 'National Statistics';
+        } else if (datasetRows[0].status.value.endsWith('OfficialStatistics')) {
+          details['status'] = 'Official Statistics';
+        } else if (datasetRows[0].status.value.endsWith('ExperimentalStatistics')) {
+          details['status'] = 'Experimental Statistics';
+        }
+      }
+      client.rows(`PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ss: <https://ons.gov.uk/ns/solarsystem#>
+SELECT * WHERE {
+  ?stats ss:inDataset <` + details['dataset'] + `> ;
+    rdfs:label ?label .
+    OPTIONAL { ?stats ss:format ?format } .
+    OPTIONAL { ?stats ss:stats_geography ?geography } .
+    OPTIONAL { ?stats ss:stats_metadata ?metadata } .
+    OPTIONAL { ?stats ss:stats_time ?time } .
+    OPTIONAL { ?stats ss:stats_unit ?unit } .
+}`, function(error, statsRows) {
+        if (error) {
+          res.render('error', {message: 'Error running SPARQL', error: error[1]});
+        } else {
+          stats = [];
+          statsRows.forEach(function(row) {
+            statsDetail = {'id': row.stats.value, 'label': row.label.value};
+            ['format', 'geography', 'metadata', 'time', 'unit'].forEach(function(key) {
+              if (row.hasOwnProperty(key)) {
+                statsDetail[key] = row[key].value;
+              }
+            });
+            stats.push(statsDetail);
+          });
+          res.render('dataset', {details: details, stats: stats});
+        }
+      });
+    }
+  });
+});
 
 module.exports = router;

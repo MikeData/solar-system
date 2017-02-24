@@ -1,0 +1,21 @@
+<h1>{{details.orgLabel}}</h1>
+{{#details.link}}<h2><a href="{{details.link}}">{{details.label}}</a></h2>{{/details.link}}
+{{^details.link}}<h2>{{details.label}}</h2>{{/details.link}}
+<dl class="dl-horizontal">
+{{#details.freq}}
+<dt>Frequency</dt><dd>{{details.freq}}</dd>
+{{/details.freq}}
+<dt>Status</dt><dd>{{details.status}}</dd>
+</dl>
+<table class="table table-striped">
+{{#stats}}
+  <tr>
+    <td>{{label}}</td>
+    <td>{{geography}}</td>
+    <td>{{metadata}}</td>
+    <td>{{time}}</td>
+    <td>{{unit}}</td>
+    <td>{{format}}</td>
+  </tr>
+{{/stats}}
+</table>
