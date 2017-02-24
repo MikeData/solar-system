@@ -8,5 +8,5 @@ RUN apk add --no-cache nodejs && \
   npm cache clean
 ENV NODE_PATH=/usr/lib/node_modules/vis/node_modules
 EXPOSE 3000
-VOLUME /app
+COPY . /app/
 CMD npm start
