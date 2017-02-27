@@ -86,6 +86,10 @@ for sheet in sh.worksheets()[2:]:
             if producer != sheet.title:
                     if sheet.title not in orgLongName:
                         orgLongName[sheet.title] = producer
+                        if sheet.title not in orgId:
+                            persistedOrg = Organisation(sheetName=sheet.title, link=None)
+                            orgId[sheet.title] = persistedOrg.id
+                            print "'%s' not in index sheet" % sheet.title
                         Organisation.get(orgId[sheet.title]).longName = producer
                     elif orgLongName[sheet.title] != producer:
                         print "Different name for producer, old %s, new %s" % (orgLongName[sheet.title], producer)
