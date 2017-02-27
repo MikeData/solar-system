@@ -1,4 +1,5 @@
-<h1>{{details.orgLabel}}</h1>
+{{#details.orgLink}}<h1><a href="{{details.orgLink}}">{{details.orgLabel}}</a></h1>{{/details.orgLink}}
+{{^details.orgLink}}<h1>{{details.orgLabel}}</h1>{{/details.orgLink}}
 {{#details.link}}<h2><a href="{{details.link}}">{{details.label}}</a></h2>{{/details.link}}
 {{^details.link}}<h2>{{details.label}}</h2>{{/details.link}}
 <dl class="dl-horizontal">

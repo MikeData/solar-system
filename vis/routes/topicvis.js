@@ -105,7 +105,7 @@ router.get('/dataset', function(req, res, next) {
   var escapeName = req.query.name.replace(/["]/g, '\\$&');
   client.rows(`PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ss: <https://ons.gov.uk/ns/solarsystem#>
-SELECT ?dataset ?freq ?link ?status ?orgLabel WHERE {
+SELECT ?dataset ?freq ?link ?status ?orgLink ?orgLabel WHERE {
   ?dataset rdfs:label "` + escapeName + `" ;
     ss:belongsToOrganisation ?org .
   OPTIONAL { ?dataset ss:dataset_frequency ?freq } .
@@ -113,6 +113,7 @@ SELECT ?dataset ?freq ?link ?status ?orgLabel WHERE {
   OPTIONAL { ?dataset ss:dataset_status ?status } .
   ?org rdfs:label ?shortLabel .
   OPTIONAL { ?org rdfs:comment ?longLabel } .
+  OPTIONAL { ?org ss:organisation_link ?orgLink } .
   BIND(IF(BOUND(?longLabel), ?longLabel, ?shortLabel) AS ?orgLabel) .
 }`, function(error, datasetRows) {
     if (error) {
@@ -141,6 +142,9 @@ SELECT ?dataset ?freq ?link ?status ?orgLabel WHERE {
       }
       if (datasetRows[0].hasOwnProperty('link')) {
         details['link'] = datasetRows[0].link.value;
+      }
+      if (datasetRows[0].hasOwnProperty('orgLink')) {
+        details['orgLink'] = datasetRows[0].orgLink.value;
       }
       if (datasetRows[0].hasOwnProperty('status')) {
         if (datasetRows[0].status.value.endsWith('NationalStatistics')) {
