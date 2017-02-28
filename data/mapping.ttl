@@ -63,10 +63,17 @@ map:dataset_status a d2rq:PropertyBridge;
 	d2rq:uriColumn "dataset.status";
   d2rq:translateWith map:StatusTable;
 	.
+map:dataset_size a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:dataset;
+	d2rq:property ss:dataset_size;
+	d2rq:propertyDefinitionLabel "dataset size";
+	d2rq:column "dataset.size";
+	.
 map:StatusTable a d2rq:TranslationTable;
   d2rq:translation [ d2rq:databaseValue "Official Statistics"; d2rq:rdfValue ss:OfficialStatistics];
   d2rq:translation [ d2rq:databaseValue "National Statistics"; d2rq:rdfValue ss:NationalStatistics];
   d2rq:translation [ d2rq:databaseValue "Experimental Statistics"; d2rq:rdfValue ss:ExperimentalStatistics];
+  d2rq:translation [ d2rq:databaseValue "OpenData"; d2rq:rdfValue ss:OpenData];
   .
 map:dataset_organisation_id__ref a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:dataset;

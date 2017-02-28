@@ -35,7 +35,8 @@ class Dataset(SQLObject):
     frequency = EnumCol(enumValues=['5Y', '4Y', '3Y', '2Y', 'Y', 'Q', 'M', 'W', '2W', '2', '6', 'AH'])
     frequencyNotes = UnicodeCol()
     link = UnicodeCol()
-    status = EnumCol(enumValues=['Official Statistics', 'National Statistics', 'Experimental Statistics'])
+    status = EnumCol(enumValues=['Official Statistics', 'National Statistics', 'Experimental Statistics', 'OpenData'])
+    size = IntCol()
 
 Dataset.createTable()
 
@@ -99,13 +100,23 @@ for sheet in sh.worksheets()[2:]:
             if (additionalNotesMatch):
                 frequency = additionalNotesMatch.group(1)
                 frequencyNotes = additionalNotesMatch.group(2)
+            sizeString = row[headerCol['size']] if 'size' in headerCol else None
+            size = None
+            if sizeString:
+                if sizeString.endswith('kb'):
+                    size = int(float(sizeString[:-2].strip()) * 1024)
+                elif sizeString.endswith('MB'):
+                    size = int(float(sizeString[:-2].strip()) * 1024 * 1024)
+                else:
+                    print "Unknown size units for '%s'" % sizeString
             try:
                 dataset = Dataset(organisation=orgId[sheet.title],
                                   title=row[headerCol['title']] if 'title' in headerCol else None,
                                   frequency=frequency,
                                   frequencyNotes=frequencyNotes,
                                   link=row[headerCol['link']] if 'link' in headerCol else None,
-                                  status=row[headerCol['status']] if 'status' in headerCol else None)
+                                  status=row[headerCol['status']] if 'status' in headerCol else None,
+                                  size=size)
             except:
                 traceback.print_exc()
                 break
