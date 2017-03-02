@@ -51,6 +51,7 @@ class Stats(SQLObject):
     metadata = UnicodeCol()
     form = UnicodeCol()
     dataset = ForeignKey('Dataset')
+    size = IntCol()
 
 class Topic(SQLObject):
     label = UnicodeCol()
@@ -123,13 +124,23 @@ for sheet in sh.worksheets()[2:]:
         tableName = row[headerCol['name of table']] if 'name of table' in headerCol else None
         if tableName != '' and tableName != None:
             try:
+                sizeString = row[headerCol['size']] if 'size' in headerCol else None
+                size = None
+                if sizeString:
+                    if sizeString.endswith('kb') or sizeString.endswith('KB'):
+                        size = int(float(sizeString[:-2].strip()) * 1024)
+                    elif sizeString.endswith('MB'):
+                        size = int(float(sizeString[:-2].strip()) * 1024 * 1024)
+                    else:
+                        print "Unknown size units for '%s'" % sizeString
                 table = Stats(name=tableName,
                               geography=row[headerCol['geography']] if 'geography' in headerCol else None,
                               time=row[headerCol['time period']] if 'time period' in headerCol else None,
                               unit=row[headerCol['unit of measure']] if 'unit of measure' in headerCol else None,
                               metadata=row[headerCol['metadata']] if 'metadata' in headerCol else None,
                               form=row[headerCol['format']] if 'format' in headerCol else None,
-                              dataset=dataset)
+                              dataset=dataset,
+                              size=size)
                 if 'topic dimensions' in headerCol:
                     for topic in row[headerCol['topic dimensions']].split(','):
                         topicLabel = topic.strip().lower()

@@ -519,6 +519,7 @@ function tick(e) {
                 // Credit: #6 and http://stackoverflow.com/a/18475039/106302
                 this.parentNode.insertBefore(this, this);
             }
+          try {
 
             var x    = d.target.x,
                 y    = d.target.y,
@@ -535,7 +536,10 @@ function tick(e) {
 
             d3.select(this)
                 .attr('x2', x)
-                .attr('y2', y);
+              .attr('y2', y);
+          } catch(err) {
+            console.log(err);
+          }
         });
 
     graph.node

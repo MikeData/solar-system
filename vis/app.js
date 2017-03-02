@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var basicAuth = require('basic-auth');
 
 var topicvis = require('./routes/topicvis');
+var onsdatavis = require('./routes/onsdatavis');
 
 /* var auth = function (req, res, next) {
   function unauthorized(res) {
@@ -41,6 +42,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/topics', topicvis);
+app.use('/onsdata', onsdatavis);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

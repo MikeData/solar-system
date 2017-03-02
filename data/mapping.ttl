@@ -162,6 +162,12 @@ map:stats_topic a d2rq:PropertyBridge;
   d2rq:join "stats.id <= stats_topic.stats_id";
   d2rq:join "stats_topic.topic_id => topic.id";
   .
+map:stats_size a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:stats;
+	d2rq:property ss:stats_size;
+	d2rq:propertyDefinitionLabel "size";
+	d2rq:column "stats.size";
+	.
 
 # Table topic
 map:topic a d2rq:ClassMap;
