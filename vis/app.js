@@ -8,6 +8,7 @@ var basicAuth = require('basic-auth');
 
 var topicvis = require('./routes/topicvis');
 var onsdatavis = require('./routes/onsdatavis');
+var fdpvis = require('./routes/fdpvis');
 
 /* var auth = function (req, res, next) {
   function unauthorized(res) {
@@ -43,6 +44,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/topics', topicvis);
 app.use('/onsdata', onsdatavis);
+app.use('/fdp', fdpvis);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
