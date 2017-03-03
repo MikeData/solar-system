@@ -11,4 +11,8 @@ router.get('/datasets', function(req, res, next) {
   res.json(datasets);
 });
 
+router.get('/labels', function(req, res, next) {
+  res.json(labels);
+});
+
 module.exports = router;

@@ -42,6 +42,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// make client side JS libraries available
+app.use('/d3',
+        express.static(path.resolve(require.resolve('d3'), '..')));
+app.use('/d3-textwrap',
+        express.static(path.resolve(require.resolve('d3-textwrap'), '..')));
+app.use('/bootstrap',
+        express.static(path.resolve(require.resolve('bootstrap'), '../..')));
+app.use('/file-saver',
+        express.static(path.resolve(require.resolve('file-saver'), '..')));
+
 app.use('/topics', topicvis);
 app.use('/onsdata', onsdatavis);
 app.use('/fdp', fdpvis);
