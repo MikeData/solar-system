@@ -4,7 +4,11 @@ var datasets = require('../data/WDAfloopscrape.json');
 var labels = require('../data/labels.json');
 
 router.get('/', function(req, res, next) {
-  res.render('fdp', {title: 'Force directed placement'});
+  if (req.originalUrl.slice(-1) != '/') {
+    res.redirect(301, req.originalUrl + '/');
+  } else {
+    res.render('ons', {title: 'Office for National Statistics datasets'});
+  }
 });
 
 router.get('/datasets', function(req, res, next) {

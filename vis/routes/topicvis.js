@@ -22,9 +22,9 @@ SELECT ?org ?label WHERE {
       rows.forEach(function(row) {
         types[row.org.value] = {short: row.label.value};
       });
-      res.render('index', {config: JSON.stringify({
+      res.render('gss', {config: JSON.stringify({
         jsonUrl: 'data.json',
-        title: 'Organisation',
+        title: 'Government Statistical Service datasets',
         "graph" : {
           "linkDistance" : 100,
           "charge"       : -400,

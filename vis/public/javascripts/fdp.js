@@ -54,13 +54,14 @@ var simulation = d3.forceSimulation()
     .force("collide", d3.forceCollide(4))
     .force("center", d3.forceCenter(width / 2, height / 2));
 
-var tooltip = d3.select("body").append("div")	
+var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
 var nodes = [];
 var links = [];
 var topics = d3.set();
+var contexts = d3.set();
 
 d3.json('datasets', function(datasets) {
   for (dataset in datasets) {
@@ -77,6 +78,7 @@ d3.json('datasets', function(datasets) {
         target: topic
       });
     });
+    contexts.add(datasets[dataset].context);
   }
 
   d3.json('labels', function(labels) {
@@ -88,6 +90,28 @@ d3.json('datasets', function(datasets) {
       });
     });
 
+    var svgLegend = svg.append("g")
+        .attr("class", "legend")
+        .attr('x', 0)
+        .attr('y', 0)
+        .selectAll(".category")
+        .data(contexts.values().sort().map(function(c) {return {id: c};}))
+        .enter().append('g')
+        .attr('class', 'category')
+
+    svgLegend.append('rect')
+      .attr('x', 10)
+      .attr('y', function(d, i) { return 30 + i * 15; })
+      .attr('height', 12)
+      .attr('width', 12)
+      .attr("fill", function(d) { return color(d.id); });
+    //      .attr("stroke", function(d) { return color(d.id).darker(0.3); })
+
+    svgLegend.append('text')
+      .attr('x', 30)
+      .attr('y', function(d, i) { return 40 + i * 15; })
+      .text(function(d) { return d.id; });
+
     var svgNodes = svg.append("g")
         .attr("class", "nodes")
         .selectAll("circle")
@@ -97,18 +121,18 @@ d3.json('datasets', function(datasets) {
         .enter().append("circle")
         .attr("r", 3)
         .attr("fill", function(n) { return color(n.context); })
-        .on("mouseover", function(d) {		
-          tooltip.transition()		
-            .duration(200)		
-            .style("opacity", .9);		
-          tooltip.html(d.name)	
-            .style("left", (d3.event.pageX) + "px")		
-            .style("top", (d3.event.pageY - 28) + "px");	
+        .on("mouseover", function(d) {
+          tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+          tooltip.html(d.name)
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
         })
-        .on("mouseout", function(d) {		
-          tooltip.transition()		
-            .duration(500)		
-            .style("opacity", 0);	
+        .on("mouseout", function(d) {
+          tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
         })
         .call(d3.drag()
               .on("start", dragstarted)
@@ -130,8 +154,8 @@ d3.json('datasets', function(datasets) {
     var wrap = d3.textwrap()
         .bounds({height: 40, width: 80})
         .method('tspans');
-    d3.selectAll('text').call(wrap);
-    
+    d3.selectAll('.topics text').call(wrap);
+
     simulation
       .nodes(nodes)
       .on("tick", ticked);
@@ -146,11 +170,11 @@ d3.json('datasets', function(datasets) {
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
-      
+
       svgNodes
         .attr("cx", function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x))})
         .attr("cy", function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y));});
-      
+
       svgTopics
         .attr("x", function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x))})
         .attr("y", function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y));});
@@ -185,5 +209,5 @@ function downloadSVG() {
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .node().parentNode.innerHTML;
   var blob = new Blob([svg], {type: "image/svg+xml"});
-  saveAs(blob, "solar-system.svg");
+  saveAs(blob, "ons-solar-system.svg");
 };

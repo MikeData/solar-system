@@ -42,6 +42,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.set('strict routing', true);
+
 // make client side JS libraries available
 app.use('/d3',
         express.static(path.resolve(require.resolve('d3'), '..')));
@@ -52,9 +54,17 @@ app.use('/bootstrap',
 app.use('/file-saver',
         express.static(path.resolve(require.resolve('file-saver'), '..')));
 
-app.use('/topics', topicvis);
-app.use('/onsdata', onsdatavis);
-app.use('/fdp', fdpvis);
+app.get('/topics', function(req, res) {
+  res.redirect(301, '/gss/');
+});
+app.use('/gss/', topicvis);
+app.get('/fdp', function(req, res) {
+  res.redirect(301, '/ons/');
+});
+app.use('/ons/', fdpvis);
+app.get('/', function(req, res) {
+  res.render('index', {title: 'Solar System of Statistics'});
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

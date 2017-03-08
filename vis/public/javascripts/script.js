@@ -198,7 +198,7 @@ function drawGraph() {
       .attr('x', 0)
       .attr('y', 0)
       .selectAll('.category')
-      .data(d3.values(graph.categories))
+      .data(d3.values(graph.categories).filter(function(c, i) {return c.typeName !== 'Topic';}))
       .enter().append('g')
       .attr('class', 'category');
 
@@ -654,7 +654,8 @@ function resize(showDocs) {
         graphHeight = 0,
         $docs       = $('#docs-container'),
         $graph      = $('#graph-container'),
-        $close      = $('#docs-close');
+        $close      = $('#docs-close'),
+        $split      = $('#split-container');
 
     if (typeof showDocs == 'boolean') {
         showingDocs = showDocs;
@@ -666,7 +667,8 @@ function resize(showDocs) {
         $docs.css('height', docsHeight + 'px');
     }
 
-    graphHeight = window.innerHeight - docsHeight;
+      graphHeight = window.innerHeight - docsHeight;
+//  graphHeight = $split.clientHeight - docsHeight;
     $graph.css('height', graphHeight + 'px');
 
     $close.css({
@@ -710,5 +712,5 @@ function downloadSVG() {
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .node().parentNode.innerHTML;
   var blob = new Blob([svg], {type: "image/svg+xml"});
-  saveAs(blob, "requires.svg");
+  saveAs(blob, "gss-solar-system.svg");
 };
