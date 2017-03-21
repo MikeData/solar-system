@@ -50,7 +50,7 @@
             <li><a href="/ons/">ONS</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#" id="generate" role="button">Download <span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></li>
+            <li><a href="#" id="generate" role="button">Download SVG <span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></li>
           </ul>
         </div>
       </div>

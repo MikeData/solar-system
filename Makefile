@@ -7,6 +7,9 @@ loadsheets:
 generate-mapping:
 	docker-compose run d2r ./generate-mapping -o /var/lib/d2rq/mapping.ttl jdbc:sqlite:/var/lib/d2rq/solar-system.db
 
+dump:
+	docker-compose run d2r ./dump-rdf -b https://ons.floop.org.uk/data/ -o /var/lib/d2rq/data.nt /var/lib/d2rq/mapping.ttl
+
 deploy-vis:
 	docker-compose build
 	docker tag solarsystem_vis cloudfluff/private:solarsystem_vis

@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var basicAuth = require('basic-auth');
+var proxy = require('express-http-proxy');
+var urlparse = require('url');
 
 var topicvis = require('./routes/topicvis');
 var onsdatavis = require('./routes/onsdatavis');
@@ -37,8 +39,8 @@ app.set('view engine', 'hjs');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -65,6 +67,19 @@ app.use('/ons/', fdpvis);
 app.get('/', function(req, res) {
   res.render('index', {title: 'Solar System of Statistics'});
 });
+
+// Forward D2R paths
+var fullPath = function(req) { console.log(req.originalUrl); return urlparse.parse(req.originalUrl).path; };
+app.use(['/sparql', '/snorql/', '/dataset', '/all', '/directory/', '/resource/', '/page/'],
+         proxy('d2r:2020', {
+           https: false,
+           forwardPath: fullPath,
+           parseReqBody: false,
+           decorateRequest: function(proxyReq, originalReq) {
+             console.log(proxyReq.body);
+             console.log(originalReq.body);
+           }
+         }));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

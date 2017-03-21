@@ -69,15 +69,19 @@
             list has been further refined by asking the relevant
             organisations for verification and other details.
           </p>
+          <p>
+            The list is currently curated as a Google spreadsheet and
+            manually annotated with tags/topics and other metadata
+            about the source datasets. The result is periodically
+            transformed into structured (RDF) data that can:
+          </p>
           <ul>
-            <li>Whitehall;</li>
-            <li>CSV metadata dump for 2015/16</li>
-            <li>Questions sent round to multiple departments</li>
-            <li>Results collated and collected in Google spreadsheet</li>
-            <li>Manually go through listed datasets and eyeball for tag/topic, size, source</li>
-            <li>Transform into linked data for querying<li>
-            <li>Sample D3 based visualisation using force-directed
-              placement datasets related via tag/topic.</li>
+            <li><a href="/directory/dataset">browsed</a> as <a href="/all">linked
+              data</a>,</li>
+            <li>queried using <a href="/snorql">SPARQL via a web
+                form</a>,</li>
+            <li>or queried directly via a <a href="/sparql">SPARQL
+endpoint</a></li>
           </ul>
         </div>
         <div class="col-sm-4">

@@ -19,6 +19,8 @@ services:
       - 2020:2020
     volumes:
       - ./data:/var/lib/d2rq:z
+    environment:
+      - D2R_BASEURI=http://localhost:3000/
 
   loadsheets:
     build:
