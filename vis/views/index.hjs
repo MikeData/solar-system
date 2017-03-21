@@ -78,7 +78,7 @@
           <ul>
             <li><a href="/directory/dataset">browsed</a> as <a href="/all">linked
               data</a>,</li>
-            <li>queried using <a href="/snorql">SPARQL via a web
+            <li>queried using <a href="/snorql/">SPARQL via a web
                 form</a>,</li>
             <li>or queried directly via a <a href="/sparql">SPARQL
 endpoint</a></li>
