@@ -2,3 +2,4 @@ pyopenssl==16.1.0
 gspread
 oauth2client
 SQLObject
+MySQL-python

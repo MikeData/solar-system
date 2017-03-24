@@ -73,7 +73,7 @@
             The list is currently curated as a Google spreadsheet and
             manually annotated with tags/topics and other metadata
             about the source datasets. The result is periodically
-            transformed into structured (RDF) data that can:
+            transformed into structured (RDF) data that can be:
           </p>
           <ul>
             <li><a href="/directory/dataset">browsed</a> as <a href="/all">linked

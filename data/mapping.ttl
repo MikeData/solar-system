@@ -8,8 +8,13 @@
 @prefix jdbc: <http://d2rq.org/terms/jdbc/> .
 
 map:database a d2rq:Database;
-	d2rq:jdbcDriver "org.sqlite.JDBC";
-	d2rq:jdbcDSN "jdbc:sqlite:/var/lib/d2rq/solar-system.db";
+#	d2rq:jdbcDriver "org.sqlite.JDBC";
+#	d2rq:jdbcDSN "jdbc:sqlite:/var/lib/d2rq/solar-system.db";
+  d2rq:jdbcDriver "com.mysql.jdbc.Driver";
+  d2rq:jdbcDSN "jdbc:mysql://sqldb/solarsystem";
+  d2rq:username "solar";
+  d2rq:password "system";
+  jdbc:autoReconnect "true";
 	.
 
 # Table dataset

@@ -12,15 +12,25 @@ services:
     links:
       - d2r
 
+  sqldb:
+    image: mariadb:10
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=solarsystem
+      - MYSQL_USER=solar
+      - MYSQL_PASSWORD=system
+
   d2r:
-    build:
-      context: d2rq
+    image: cloudfluff/d2r
     ports:
       - 2020:2020
     volumes:
       - ./data:/var/lib/d2rq:z
     environment:
       - D2R_BASEURI=http://localhost:3000/
+    links:
+      - sqldb
+    entrypoint: ./wait-for-it.sh sqldb:3306 -t 0 --
 
   loadsheets:
     build:
@@ -28,3 +38,7 @@ services:
     volumes:
       - ./data:/data:z
       - ./sheets:/usr/local/sheets:z
+    links:
+      - sqldb
+    command: python loadData.py
+    entrypoint: /usr/local/sheets/wait-for-it.sh sqldb:3306 -t 0 --

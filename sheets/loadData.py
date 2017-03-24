@@ -17,20 +17,21 @@ credentials = ServiceAccountCredentials.from_json_keyfile_name('/data/solar-syst
 gc = gspread.authorize(credentials)
 sh = gc.open_by_key('1Fiu5q-si5PUvh7ulWwHkQnUoREgYliywZOd7HOftPsU')
 
-db_file = os.path.abspath('/data/solar-system.db')
-if os.path.exists(db_file):
-    os.unlink(db_file)
-connection = connectionForURI('sqlite:' + db_file)
+MySQLConnection = mysql.builder()
+connection = MySQLConnection(user='solar', password="system", db='solarsystem', host="sqldb")
 sqlhub.processConnection = connection
 
 class Organisation(SQLObject):
     sheetName = UnicodeCol()
     longName = UnicodeCol(default=None)
     link = UnicodeCol()
-Organisation.createTable()
+Organisation.createTable(ifNotExists=True)
+Organisation.sqlmeta
+Organisation.deleteMany(None)
+connection.query("ALTER TABLE organisation AUTO_INCREMENT=1");
 
 class Dataset(SQLObject):
-    organisation = ForeignKey('Organisation')
+    organisation = ForeignKey('Organisation', cascade=True)
     title = UnicodeCol()
     frequency = EnumCol(enumValues=['5Y', '4Y', '3Y', '2Y', 'Y', 'Q', 'M', 'W', '2W', '2', '6', 'AH'])
     frequencyNotes = UnicodeCol()
@@ -38,7 +39,9 @@ class Dataset(SQLObject):
     status = EnumCol(enumValues=['Official Statistics', 'National Statistics', 'Experimental Statistics', 'OpenData'])
     size = IntCol()
 
-Dataset.createTable()
+Dataset.createTable(ifNotExists=True)
+Dataset.deleteMany(None)
+connection.query("ALTER TABLE dataset AUTO_INCREMENT=1");
 
 Organisation.sqlmeta.addJoin(MultipleJoin('Dataset', joinMethodName='datasets'))
 
@@ -50,14 +53,18 @@ class Stats(SQLObject):
     topics = RelatedJoin('Topic')
     metadata = UnicodeCol()
     form = UnicodeCol()
-    dataset = ForeignKey('Dataset')
+    dataset = ForeignKey('Dataset', cascade=True)
     size = IntCol()
 
 class Topic(SQLObject):
     label = UnicodeCol()
 
-Stats.createTable()
-Topic.createTable()
+Stats.createTable(ifNotExists=True)
+Stats.deleteMany(None)
+connection.query("ALTER TABLE stats AUTO_INCREMENT=1");
+Topic.createTable(ifNotExists=True)
+Topic.deleteMany(None)
+connection.query("ALTER TABLE topic AUTO_INCREMENT=1");
 
 Dataset.sqlmeta.addJoin(MultipleJoin('Stats', joinMethodName='stats'))
 

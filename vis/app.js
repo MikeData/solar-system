@@ -69,16 +69,12 @@ app.get('/', function(req, res) {
 });
 
 // Forward D2R paths
-var fullPath = function(req) { console.log(req.originalUrl); return urlparse.parse(req.originalUrl).path; };
+var fullPath = function(req) { return urlparse.parse(req.originalUrl).path; };
 app.use(['/sparql', '/snorql/', '/dataset', '/all', '/directory/', '/resource/', '/page/'],
          proxy('d2r:2020', {
            https: false,
            forwardPath: fullPath,
-           parseReqBody: false,
-           decorateRequest: function(proxyReq, originalReq) {
-             console.log(proxyReq.body);
-             console.log(originalReq.body);
-           }
+           parseReqBody: false
          }));
 
 // catch 404 and forward to error handler
