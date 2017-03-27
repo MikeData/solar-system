@@ -724,6 +724,11 @@ function refreshData() {
   var totalSheets;
   var sheetNumber = 0;
   var progressLog = $('#progressLog');
+  ws.onerror = function() {
+    progressLog.append("Communications error with server.\n");
+    progressLog.scrollTop(progressLog.prop("scrollHeight"));
+    $('#doneButton').prop("disabled", false);
+  };
   ws.onopen = function() {
   };
   ws.onmessage = function(evt) {
