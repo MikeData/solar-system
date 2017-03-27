@@ -15,6 +15,7 @@ map:database a d2rq:Database;
   d2rq:username "solar";
   d2rq:password "system";
   jdbc:autoReconnect "true";
+  jdbc:keepAlive "60";
 	.
 
 # Table dataset

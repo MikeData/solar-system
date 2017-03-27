@@ -679,32 +679,6 @@ function resize(showDocs) {
 
 d3.select('#generate').on('click', downloadSVG);
 
-function writeDownloadLink(){
-    var html = d3.select("svg")
-        .attr("title", "test")
-        .attr("version", 1.1)
-        .attr("xmlns", "http://www.w3.org/2000/svg")
-        .node().parentNode.innerHTML;
-    d3.select("body").append("div")
-        .attr("id", "download")
-        .style("top", event.clientY+20+"px")
-        .style("left", event.clientX+"px")
-        .html("Right-click on this preview and choose Save as<br />Left-Click to dismiss<br />")
-        .append("img")
-        .attr("src", "data:image/svg+xml;base64,"+ btoa(html));
-    d3.select("#download")
-        .on("click", function(){
-            if(event.button == 0){
-                d3.select(this).transition()
-                    .style("opacity", 0)
-                    .remove();
-            }
-        })
-        .transition()
-        .duration(500)
-        .style("opacity", 1);
-};
-
 function downloadSVG() {
   var svg = d3.select("svg")
       .attr("title", "test")
@@ -714,3 +688,73 @@ function downloadSVG() {
   var blob = new Blob([svg], {type: "image/svg+xml"});
   saveAs(blob, "gss-solar-system.svg");
 };
+
+d3.select('#refresh').on('click', refreshData);
+d3.select('#doneButton').on('click', function() {
+  $('#refreshModal').modal('hide');
+  $('#progressLog').empty();
+  $('#doneButton').prop("disabled", true);
+  $("#refreshProgress")
+    .css("width", "0%")
+    .attr('aria-valuenow', 0);
+  d3.json(config.jsonUrl, function(data) {
+    if (data.errors.length) {
+      alert('Data error(s):\n\n' + data.errors.join('\n'));
+      return;
+    }
+    graph.data = data.data;
+    drawGraph();
+  });
+
+});
+
+function refreshData() {
+  $('#refreshModal').modal({
+    keyboard: false,
+    backdrop: false,
+    show: true});
+  var ws_uri;
+  if (window.location.protocol === 'https:') {
+    ws_uri = 'wss:';
+  } else {
+    ws_uri = 'ws:';
+  }
+  ws_uri += '//' + window.location.host + '/refresh';
+  var ws = new WebSocket(ws_uri);
+  var totalSheets;
+  var sheetNumber = 0;
+  var progressLog = $('#progressLog');
+  ws.onopen = function() {
+  };
+  ws.onmessage = function(evt) {
+    var msg = JSON.parse(evt.data);
+    switch(msg.type) {
+    case "totalSheets":
+      totalSheets = msg.total;
+      $('#refreshProgress').addClass('active');
+      break;
+    case "processingSheet":
+      sheetNumber += 1;
+      var complete = 100.0 * sheetNumber / totalSheets;
+      $("#refreshProgress")
+        .css("width", complete + "%")
+        .attr('aria-valuenow', complete);
+      progressLog.append("Processing '" + msg.sheet + "'\n");
+      progressLog.scrollTop(progressLog.prop("scrollHeight"));
+      break;
+    case "warn":
+      progressLog.append("Warning: " + msg.msg + "\n");
+      progressLog.scrollTop(progressLog.prop("scrollHeight"));
+      break;
+    case "error":
+      progressLog.append("Error: " + msg.msg + "\n");
+      progressLog.scrollTop(progressLog.prop("scrollHeight"));
+      break;
+    case "finished":
+      ws.close();
+      $('#doneButton').prop("disabled", false);
+      $('#refreshProgress').removeClass('active');
+      break;
+    }
+  };
+}

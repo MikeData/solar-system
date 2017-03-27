@@ -11,6 +11,7 @@ services:
       - ./vis:/app:z
     links:
       - d2r
+      - loadsheets
 
   sqldb:
     image: mariadb:10
@@ -19,6 +20,8 @@ services:
       - MYSQL_DATABASE=solarsystem
       - MYSQL_USER=solar
       - MYSQL_PASSWORD=system
+    volumes:
+      - ./mariadb:/var/lib/mysql:z
 
   d2r:
     image: cloudfluff/d2r
@@ -30,7 +33,6 @@ services:
       - D2R_BASEURI=http://localhost:3000/
     links:
       - sqldb
-    entrypoint: ./wait-for-it.sh sqldb:3306 -t 0 --
 
   loadsheets:
     build:
@@ -38,6 +40,8 @@ services:
     volumes:
       - ./data:/data:z
       - ./sheets:/usr/local/sheets:z
+    ports:
+      - 80:80
     links:
       - sqldb
     command: python loadData.py

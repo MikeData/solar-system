@@ -50,25 +50,50 @@
             <li><a href="/ons/">ONS</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" id="refresh" role="button">Refresh <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></a></li>
             <li><a href="#" id="generate" role="button">Download SVG <span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></li>
           </ul>
         </div>
       </div>
     </nav>
-        <div id="split-container" class="container">
-            <div id="graph-container">
-                <div id="graph"></div>
+    <!-- Refresh modal -->
+    <div class="modal fade" id="refreshModal" tabindex="-1" role="dialog" aria-labelledby="refreshModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="refreshModalLabel">Refresh data</h4>
+          </div>
+          <div class="modal-body">
+            <p>Processing Google spreadsheet into linked data&hellip;</p>
+            <div id="progressLog" class="well">
             </div>
-            <div id="docs-container">
-                <a id="docs-close" href="#">&times;</a>
-                <div id="docs" class="docs"></div>
+            <div class="progress">
+              <div id="refreshProgress" class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                <span class="sr-only">0% Complete</span>
+              </div>
             </div>
+          </div>
+          <div class="modal-footer">
+            <button id="doneButton" data-dismiss="modal" type="button" class="btn btn-primary" disabled="disabled">Done</button>
+          </div>
         </div>
-        <div class="container">
-        <script>
-            var config = {{{ config }}};
-        </script>
-        </div>
-        <script src="/javascripts/script.js"></script>
+      </div>
+    </div>
+    <div id="split-container" class="container">
+      <div id="graph-container">
+        <div id="graph"></div>
+      </div>
+      <div id="docs-container">
+        <a id="docs-close" href="#">&times;</a>
+        <div id="docs" class="docs"></div>
+      </div>
+    </div>
+    <div class="container">
+      <script>
+        var config = {{{ config }}};
+      </script>
+    </div>
+    <script src="/javascripts/script.js"></script>
     </body>
 </html>

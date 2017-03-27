@@ -5,10 +5,11 @@ COPY requirements.txt /usr/local/sheets/
 RUN \
   apk add --no-cache libffi openssl mariadb-client-libs py-mysqldb bash \
   && apk add --no-cache -t .dev openssl-dev libffi-dev musl-dev linux-headers gcc mariadb-dev \
-  && pip install -r /usr/local/sheets/requirements.txt \
+  && pip install --no-cache-dir -r /usr/local/sheets/requirements.txt \
   && apk del .dev
 COPY loadData.py wait-for-it.sh /usr/local/sheets/
 WORKDIR /usr/local/sheets
 VOLUME /data
 VOLUME /usr/local/sheets
+EXPOSE 80
 CMD ["python", "loadData.py"]

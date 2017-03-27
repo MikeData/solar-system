@@ -2,7 +2,7 @@ default:
 	docker-compose run -p 3000:3000 vis
 
 loadsheets:
-	docker-compose run loadsheets
+	docker-compose run loadsheets python ./loadData.py oneshot
 
 generate-mapping:
 	docker-compose run d2r ./generate-mapping -o /var/lib/d2rq/mapping.ttl jdbc:sqlite:/var/lib/d2rq/solar-system.db
