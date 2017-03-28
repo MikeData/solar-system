@@ -45,7 +45,7 @@ services:
     links:
       - sqldb
     command: python loadData.py
-    entrypoint: /usr/local/sheets/wait-for-it.sh sqldb:3306 -t 0 --
+    entrypoint: bash wait-for-it.sh sqldb:3306 -t 0 --
 
 volumes:
   mariadb:
