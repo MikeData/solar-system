@@ -21,7 +21,7 @@ services:
       - MYSQL_USER=solar
       - MYSQL_PASSWORD=system
     volumes:
-      - ./mariadb:/var/lib/mysql:z
+      - mariadb:/var/lib/mysql:z
 
   d2r:
     image: cloudfluff/d2r
@@ -46,3 +46,6 @@ services:
       - sqldb
     command: python loadData.py
     entrypoint: /usr/local/sheets/wait-for-it.sh sqldb:3306 -t 0 --
+
+volumes:
+  mariadb:
